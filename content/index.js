@@ -21,27 +21,49 @@
   }
 
   function init() {
+    const localStorageKeys = getLocalStorageKeys();
     const { posts, postIds } = getPostsAndIds();
     const missingPostIds = getMissingPostIds(postIds);
-    insertMissingPosts(posts, missingPostIds);
+    insertMissingPosts(posts, missingPostIds, localStorageKeys);
   }
 
   init();
 
-  function insertMissingPosts(posts, missingPostIds) {
+  function saveLocal(id, data) {
+    localStorage.setItem(id, data);
+  }
+
+  function getLocalStorageKeys() {
+    return Object.keys(localStorage).map(Number);
+  }
+
+  function fetchLocal(id) {
+    return localStorage.getItem(id);
+  }
+
+  function insertMissingPosts(posts, missingPostIds, localStorageKeys) {
     missingPostIds.forEach(function (id) {
       const prev = qs(`[data-postid="${id - 1}"]`);
-      getDeletedPostHTML(id)
-        .then(data => data.text())
-        .then((html) => {
-          const { post, reason } = getContent(html);
-          const tempEl = create('div');
-          tempEl.classList.add('deletedpost', 'copy');
-          tempEl.innerHTML = insertLink(id, post);
-          tempEl.appendChild(getReason(reason));
-          insertAfter(tempEl, prev);
-          padDeletedPost(tempEl);
-        });
+      if (localStorageKeys.includes(id)) {
+        const tempEl = create('div');
+        tempEl.classList.add('deletedpost', 'copy');
+        tempEl.innerHTML = fetchLocal(id);
+        insertAfter(tempEl, prev);
+        padDeletedPost(tempEl);
+      } else {
+        getDeletedPostHTML(id)
+          .then(data => data.text())
+          .then((html) => {
+            const { post, reason } = getContent(html);
+            const tempEl = create('div');
+            tempEl.classList.add('deletedpost', 'copy');
+            tempEl.innerHTML = insertLink(id, post);
+            tempEl.appendChild(getReason(reason));
+            insertAfter(tempEl, prev);
+            padDeletedPost(tempEl);
+            saveLocal(id, tempEl.innerHTML);
+          });
+      }
     });
   }
 
