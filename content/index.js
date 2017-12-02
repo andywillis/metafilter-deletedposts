@@ -87,7 +87,6 @@
 
   function getMissingPostIds(postIds) {
     const revPostIds = postIds.reverse();
-    console.log(JSON.stringify(revPostIds, null, 2));
     const out = [];
     for (let i = 1; i < revPostIds.length; i++) {
       if (revPostIds[i] - revPostIds[i - 1] !== 1) {
