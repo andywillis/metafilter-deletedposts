@@ -41,29 +41,30 @@
     return localStorage.getItem(id);
   }
 
+  function createTemporaryElement() {
+    const tempEl = create('div');
+    tempEl.classList.add('deletedpost', 'copy');
+    return tempEl;
+  }
+
   function insertMissingPosts(posts, missingPostIds, localStorageKeys) {
     missingPostIds.forEach(function (id) {
       const prev = qs(`[data-postid="${id - 1}"]`);
+      const tempEl = createTemporaryElement();
       if (localStorageKeys.includes(id)) {
-        const tempEl = create('div');
-        tempEl.classList.add('deletedpost', 'copy');
         tempEl.innerHTML = fetchLocal(id);
-        insertAfter(tempEl, prev);
-        padDeletedPost(tempEl);
       } else {
         getDeletedPostHTML(id)
           .then(data => data.text())
           .then((html) => {
             const { post, reason } = getContent(html);
-            const tempEl = create('div');
-            tempEl.classList.add('deletedpost', 'copy');
             tempEl.innerHTML = insertLink(id, post);
             tempEl.appendChild(getReason(reason));
-            insertAfter(tempEl, prev);
-            padDeletedPost(tempEl);
             saveLocal(id, tempEl.innerHTML);
           });
       }
+      insertAfter(tempEl, prev);
+      padDeletedPost(tempEl);
     });
   }
 
