@@ -20,11 +20,36 @@
     refNode.parentNode.insertBefore(newNode, refNode.nextSibling);
   }
 
+  function getSite() {
+    return document.location.host.split('.')[0];
+  }
+
+  function hasSite(site) {
+    return [
+      'www', 'ask', 'metatalk', 'fanfare',
+      'projects', 'music'
+    ].includes(site);
+  }
+
+  function getPrefix(site) {
+    return {
+      www: 1,
+      ask: 3,
+      metatalk: 5,
+      fanfare: 2,
+      projects: 7,
+      music: 8 
+    }[site];
+  }
+
   function init() {
-    const localStorageKeys = getLocalStorageKeys();
-    const { posts, postIds } = getPostsAndIds();
-    const missingPostIds = getMissingPostIds(postIds);
-    insertMissingPosts(posts, missingPostIds, localStorageKeys);
+    const site = getSite();
+    if (hasSite(site)) {
+      const localStorageKeys = getLocalStorageKeys();
+      const { posts, postIds } = getPostsAndIds(site);
+      const missingPostIds = getMissingPostIds(postIds);
+      insertMissingPosts(posts, missingPostIds, localStorageKeys, site);
+    }
   }
 
   init();
@@ -47,14 +72,14 @@
     return tempEl;
   }
 
-  function insertMissingPosts(posts, missingPostIds, localStorageKeys) {
+  function insertMissingPosts(posts, missingPostIds, localStorageKeys, site) {
     missingPostIds.forEach(function (id) {
       const prev = qs(`[data-postid="${id - 1}"]`);
       const tempEl = createTemporaryElement();
       if (localStorageKeys.includes(id)) {
         tempEl.innerHTML = fetchLocal(id);
       } else {
-        getDeletedPostHTML(id)
+        getDeletedPostHTML(id, site)
           .then(data => data.text())
           .then((html) => {
             const { post, reason } = getContent(html);
@@ -77,7 +102,7 @@
 
   function getReason(el) {
     const tempEl = create('div');
-    tempEl.innerHTML = el.textContent;
+    tempEl.innerHTML = el.innerHTML;
     tempEl.classList.add('deletedreason');
     return tempEl;
   }
@@ -93,15 +118,15 @@
     return { post: qs('.copy', tempEl), reason: qs('.reason', tempEl) };
   }
 
-  function getDeletedPostHTML(id) {
-    return fetch(`https://www.metafilter.com/${id}/`);
+  function getDeletedPostHTML(id, site) {
+    return fetch(`https://${site}.metafilter.com/${id}/`);
   }
 
-  function getPostsAndIds() {
+  function getPostsAndIds(site) {
     const postIds = [];
     const posts = getPosts();
     posts.forEach(function (post) {
-      const postId = getPostId(post);
+      const postId = getPostId(post, site);
       post.setAttribute('data-postid', postId);
       postIds.push(postId);
     });
@@ -125,9 +150,11 @@
     return qsa('.post');
   }
 
-  function getPostId(post) {
-    const favSpan = qs('span[id^=fav]', post);
-    return +favSpan.id.match(/fav1(\d+)/)[1];
+  function getPostId(post, site) {
+    const prefix = getPrefix(site);
+    const favSpan = qs(`span[id^=fav${prefix}]`, post);
+    const regex = new RegExp(`fav${prefix}(\\d+)`);
+    return +favSpan.id.match(regex)[1];
   }
 
 }());
