@@ -33,12 +33,7 @@
 
   function getPrefix(site) {
     return {
-      www: 1,
-      ask: 3,
-      metatalk: 5,
-      fanfare: 2,
-      projects: 7,
-      music: 8 
+      www: 1, ask: 3, metatalk: 5, fanfare: 2, projects: 7, music: 8
     }[site];
   }
 
@@ -83,7 +78,7 @@
           .then(data => data.text())
           .then((html) => {
             const { post, reason } = getContent(html);
-            tempEl.innerHTML = insertLink(id, post);
+            tempEl.innerHTML = insertLink(id, post, site);
             tempEl.appendChild(getReason(reason));
             saveLocal(id, tempEl.innerHTML);
           });
@@ -93,10 +88,10 @@
     });
   }
 
-  function insertLink(id, el) {
+  function insertLink(id, el, site) {
     const commentsRe = /\d+ comments total/;
     return el.innerHTML.replace(commentsRe, function (match) {
-      return `<a href="https://www.metafilter.com/${id}/">${match}</a>`;
+      return `<a href="https://${site}.metafilter.com/${id}/">${match}</a>`;
     });
   }
 
