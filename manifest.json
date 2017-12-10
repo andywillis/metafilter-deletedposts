@@ -1,7 +1,7 @@
 {
   "manifest_version": 2,
   "name": "metafilter-deletedposts",
-  "version": "1.2.1",
+  "version": "1.2.2",
   "description": "Unofficial Metafilter web extension to show deleted posts.",
   "icons": {
     "48": "icons/icon-48.png",
@@ -9,7 +9,7 @@
     "128": "icons/icon-128.png"
   },
   "content_scripts": [{
-    "matches": ["*://*.metafilter.com/*"],
+    "matches": ["*://*.metafilter.com/"],
     "js": ["content/index.js"],
     "css": ["content/index.css"]
   }]
