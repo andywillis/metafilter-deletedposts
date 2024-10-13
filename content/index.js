@@ -72,13 +72,15 @@
       const prev = qs(`[data-postid="${id - 1}"]`);
       const tempEl = createTemporaryElement();
       if (localStorageKeys.includes(id)) {
-        tempEl.innerHTML = fetchLocal(id);
+        const cleanHTML = DOMPurify.sanitize(fetchLocal(id));
+        tempEl.innerHTML = cleanHTML;
       } else {
         getDeletedPostHTML(id, site)
           .then(data => data.text())
           .then((html) => {
             const { post, reason } = getContent(html);
-            tempEl.innerHTML = insertLink(id, post, site);
+            const cleanHTML = DOMPurify.sanitize(insertLink(id, post, site));
+            tempEl.innerHTML = cleanHTML;
             tempEl.appendChild(getReason(reason));
             saveLocal(id, tempEl.innerHTML);
           });
@@ -97,7 +99,8 @@
 
   function getReason(el) {
     const tempEl = create('div');
-    tempEl.innerHTML = el.innerHTML;
+    const cleanHTML = DOMPurify.sanitize(el.innerHTML);
+    tempEl.innerHTML = cleanHTML;
     tempEl.classList.add('deletedreason');
     return tempEl;
   }
@@ -109,7 +112,8 @@
 
   function getContent(html) {
     const tempEl = create('div');
-    tempEl.innerHTML = html;
+    const cleanHTML = DOMPurify.sanitize(html);
+    tempEl.innerHTML = cleanHTML;
     return { post: qs('.copy', tempEl), reason: qs('.reason', tempEl) };
   }
 
