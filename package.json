@@ -1,6 +1,6 @@
 {
   "name": "metafilter-deletedposts",
-  "version": "1.2.3",
+  "version": "1.2.4",
   "description": "Web extension version of the Metafilter Navigator Greasemonkey script.",
   "author": "Andy Willis",
   "license": "ISC",
