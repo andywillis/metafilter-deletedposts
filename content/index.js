@@ -89,7 +89,7 @@
   }
 
   function insertLink(id, el, site) {
-    const commentsRe = /\d+ comments total/;
+    const commentsRe = site === 'ask' ? /\d+ answers total/ : /\d+ comments total/;
     return el.innerHTML.replace(commentsRe, function (match) {
       return `<a href="https://${site}.metafilter.com/${id}/">${match}</a>`;
     });
